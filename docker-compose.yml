@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: archive-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: archive_db
+      POSTGRES_USER: archive_user
+      POSTGRES_PASSWORD: archive_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - archive_data:/var/lib/postgresql/data
+    networks:
+      - archive_network
+
+volumes:
+  archive_data:
+
+networks:
+  archive_network:
+    driver: bridge
