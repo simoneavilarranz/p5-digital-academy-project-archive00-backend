@@ -1,5 +1,5 @@
 package com.archive.backend.dto;
 
-public record AuthResponse() {
+public record AuthResponse(String message) {
     
 }
