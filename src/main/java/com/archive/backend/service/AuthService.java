@@ -11,6 +11,7 @@ import com.archive.backend.exception.EmailAlreadyExistsException;
 import com.archive.backend.exception.UsernameAlreadyExistsException;
 import com.archive.backend.repository.RoleRepository;
 import com.archive.backend.repository.UserRepository;
+import com.archive.backend.security.JwtService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,6 +22,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public AuthResponse register(RegisterRequest request) {
 
