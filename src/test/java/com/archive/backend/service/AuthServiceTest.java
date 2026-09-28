@@ -126,4 +126,24 @@ public class AuthServiceTest {
 
     }
 
+    @Test 
+    void login_shouldThrowInvalidCredentialsException_whenPasswordIsWrong() {
+
+        LoginRequest request = new LoginRequest("test@example.com", "password123");
+
+        User user = User.builder()
+            .username("testuser")
+            .email("test@example.com")
+            .password("encodedPassword")
+            .build();
+
+        when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(request.password(), user.getPassword())).thenReturn(false);
+
+        assertThatThrownBy(() -> authService.login(request))
+            .isInstanceOf(InvalidCredentialsException.class)
+            .hasMessage("Invalid credentials");
+
+    }
+
 }
