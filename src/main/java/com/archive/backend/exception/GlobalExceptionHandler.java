@@ -20,4 +20,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(UsernameAlreadyExistsException.class)
+    public ResponseEntity<Map<String, Object>> handleUsernameAlreadyExists(UsernameAlreadyExistsException ex)
+    {
+        Map<String, Object> body = Map.of(
+            "status", 409,
+            "message", ex.getMessage()
+        );
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    }
+
 }
