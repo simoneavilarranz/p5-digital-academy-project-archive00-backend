@@ -20,6 +20,7 @@ import com.archive.backend.exception.UsernameAlreadyExistsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.archive.backend.dto.AuthResponse;
+import com.archive.backend.dto.LoginRequest;
 import com.archive.backend.dto.RegisterRequest;
 import com.archive.backend.entity.Role;
 import com.archive.backend.repository.RoleRepository;
@@ -89,4 +90,26 @@ public class AuthServiceTest {
 
     }
     
+    @Test 
+    void login_shouldReturnToken_whenCredentialsAreValid() {
+
+        LoginRequest request = new LoginRequest("test@example.com", "password123");
+
+        User user = User.builder()
+            .username("testuser")
+            .email("test@example.com")
+            .password("encodedPassword")
+            .build();
+
+        when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(request.password(), user.getPassword())).thenReturn(true);
+        when(jwtService.generateToken(user.getUsername())).thenReturn("mockedToken");
+
+        AuthResponse response = authService.login(request);
+
+        assertThat(response.message()).isEqualTo("Login successful");
+        assertThat(response.token()).isEqualTo("mockedToken");
+
+    }
+
 }
