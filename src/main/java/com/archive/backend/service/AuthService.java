@@ -7,6 +7,8 @@ import com.archive.backend.dto.AuthResponse;
 import com.archive.backend.dto.RegisterRequest;
 import com.archive.backend.entity.Role;
 import com.archive.backend.entity.User;
+import com.archive.backend.exception.EmailAlreadyExistsException;
+import com.archive.backend.exception.UsernameAlreadyExistsException;
 import com.archive.backend.repository.RoleRepository;
 import com.archive.backend.repository.UserRepository;
 
@@ -23,10 +25,10 @@ public class AuthService {
     public AuthResponse register(RegisterRequest request) {
 
         if (userRepository.existsByEmail(request.email())) {
-            throw new RuntimeException("Email is already registered");
+            throw new EmailAlreadyExistsException("Email is already registered");
         }
         if (userRepository.existsByUsername(request.username())) {
-            throw new RuntimeException("Username is already taken");
+            throw new UsernameAlreadyExistsException("Username is already taken");
         }
 
         Role userRole = roleRepository.findByName("USER")
