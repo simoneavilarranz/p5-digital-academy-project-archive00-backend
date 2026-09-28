@@ -4,6 +4,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.archive.backend.dto.AuthResponse;
+import com.archive.backend.dto.LoginRequest;
 import com.archive.backend.dto.RegisterRequest;
 import com.archive.backend.entity.Role;
 import com.archive.backend.entity.User;
@@ -47,6 +48,10 @@ public class AuthService {
 
         return new AuthResponse("User registered successfully", null);
 
+    }
+
+    public AuthResponse login(LoginRequest request) {
+        
     }
 
 }
