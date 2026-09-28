@@ -22,6 +22,9 @@ public class AuthService {
         if (userRepository.existsByEmail(request.email())) {
             throw new RuntimeException("Email is already registered");
         }
+        if (userRepository.existsByUsername(request.username())) {
+            throw new RuntimeException("Username is already taken");
+        }
     }
 
 }
