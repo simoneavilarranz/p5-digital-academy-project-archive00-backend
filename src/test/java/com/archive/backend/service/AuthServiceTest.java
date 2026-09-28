@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.archive.backend.entity.User;
 import com.archive.backend.exception.EmailAlreadyExistsException;
+import com.archive.backend.exception.InvalidCredentialsException;
 import com.archive.backend.exception.UsernameAlreadyExistsException;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -109,6 +110,19 @@ public class AuthServiceTest {
 
         assertThat(response.message()).isEqualTo("Login successful");
         assertThat(response.token()).isEqualTo("mockedToken");
+
+    }
+
+    @Test 
+    void login_shouldThrowInvalidCredentialsException_whenEmailNotFound() {
+
+        LoginRequest request = new LoginRequest("test@example.com", "password123");
+
+        when(userRepository.findByEmail(request.email())).thenReturn(Optional.empty());     
+        
+        assertThatThrownBy(() -> authService.login(request))
+            .isInstanceOf(InvalidCredentialsException.class)
+            .hasMessage("Invalid credentials");
 
     }
 
