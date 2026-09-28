@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.archive.backend.entity.User;
 import com.archive.backend.exception.EmailAlreadyExistsException;
+import com.archive.backend.exception.UsernameAlreadyExistsException;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -69,6 +70,19 @@ public class AuthServiceTest {
         assertThatThrownBy(() -> authService.register(request))
         .isInstanceOf(EmailAlreadyExistsException.class)
         .hasMessage("Email is already registered");
+
+    }
+
+    @Test 
+    void register_shouldThrowUsernameAlreadyExistsException_whenUsernameExists() {
+
+        RegisterRequest request = new RegisterRequest("testuser", "test@example.com", "password123");
+        
+        when(userRepository.existsByUsername(request.username())).thenReturn(true);
+
+        assertThatThrownBy(() -> authService.register(request))
+        .isInstanceOf(UsernameAlreadyExistsException.class)
+        .hasMessage("Username is already taken");
 
     }
     
