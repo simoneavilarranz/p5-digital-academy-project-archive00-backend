@@ -1,5 +1,6 @@
 package com.archive.backend.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -17,5 +18,12 @@ public class AuthServiceTest {
     private RoleRepository roleRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    private AuthService authService;
+
+    @BeforeEach 
+    void setUp() {
+        authService = new AuthService(userRepository, roleRepository, passwordEncoder);
+    }
     
 }
