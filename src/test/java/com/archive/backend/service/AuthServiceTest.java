@@ -15,15 +15,18 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.archive.backend.entity.User;
 import com.archive.backend.exception.EmailAlreadyExistsException;
+import com.archive.backend.exception.InvalidCredentialsException;
 import com.archive.backend.exception.UsernameAlreadyExistsException;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.archive.backend.dto.AuthResponse;
+import com.archive.backend.dto.LoginRequest;
 import com.archive.backend.dto.RegisterRequest;
 import com.archive.backend.entity.Role;
 import com.archive.backend.repository.RoleRepository;
 import com.archive.backend.repository.UserRepository;
+import com.archive.backend.security.JwtService;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthServiceTest {
@@ -34,12 +37,14 @@ public class AuthServiceTest {
     private RoleRepository roleRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private JwtService jwtService;
 
     private AuthService authService;
 
     @BeforeEach 
     void setUp() {
-        authService = new AuthService(userRepository, roleRepository, passwordEncoder);
+        authService = new AuthService(userRepository, roleRepository, passwordEncoder, jwtService);
     }
 
     @Test 
@@ -86,4 +91,59 @@ public class AuthServiceTest {
 
     }
     
+    @Test 
+    void login_shouldReturnToken_whenCredentialsAreValid() {
+
+        LoginRequest request = new LoginRequest("test@example.com", "password123");
+
+        User user = User.builder()
+            .username("testuser")
+            .email("test@example.com")
+            .password("encodedPassword")
+            .build();
+
+        when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(request.password(), user.getPassword())).thenReturn(true);
+        when(jwtService.generateToken(user.getUsername())).thenReturn("mockedToken");
+
+        AuthResponse response = authService.login(request);
+
+        assertThat(response.message()).isEqualTo("Login successful");
+        assertThat(response.token()).isEqualTo("mockedToken");
+
+    }
+
+    @Test 
+    void login_shouldThrowInvalidCredentialsException_whenEmailNotFound() {
+
+        LoginRequest request = new LoginRequest("test@example.com", "password123");
+
+        when(userRepository.findByEmail(request.email())).thenReturn(Optional.empty());     
+        
+        assertThatThrownBy(() -> authService.login(request))
+            .isInstanceOf(InvalidCredentialsException.class)
+            .hasMessage("Invalid credentials");
+
+    }
+
+    @Test 
+    void login_shouldThrowInvalidCredentialsException_whenPasswordIsWrong() {
+
+        LoginRequest request = new LoginRequest("test@example.com", "password123");
+
+        User user = User.builder()
+            .username("testuser")
+            .email("test@example.com")
+            .password("encodedPassword")
+            .build();
+
+        when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(request.password(), user.getPassword())).thenReturn(false);
+
+        assertThatThrownBy(() -> authService.login(request))
+            .isInstanceOf(InvalidCredentialsException.class)
+            .hasMessage("Invalid credentials");
+
+    }
+
 }

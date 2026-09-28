@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.archive.backend.dto.AuthResponse;
+import com.archive.backend.dto.LoginRequest;
 import com.archive.backend.dto.RegisterRequest;
 import com.archive.backend.service.AuthService;
 
@@ -25,6 +26,11 @@ public class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
         return authService.register(request);
+    }
+
+    @PostMapping("/login")
+    public AuthResponse login(@Valid @RequestBody LoginRequest request){
+        return authService.login(request);
     }
 
 }
