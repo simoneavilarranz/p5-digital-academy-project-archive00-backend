@@ -24,6 +24,7 @@ import com.archive.backend.dto.RegisterRequest;
 import com.archive.backend.entity.Role;
 import com.archive.backend.repository.RoleRepository;
 import com.archive.backend.repository.UserRepository;
+import com.archive.backend.security.JwtService;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthServiceTest {
@@ -34,12 +35,14 @@ public class AuthServiceTest {
     private RoleRepository roleRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private JwtService jwtService;
 
     private AuthService authService;
 
     @BeforeEach 
     void setUp() {
-        authService = new AuthService(userRepository, roleRepository, passwordEncoder);
+        authService = new AuthService(userRepository, roleRepository, passwordEncoder, jwtService);
     }
 
     @Test 
