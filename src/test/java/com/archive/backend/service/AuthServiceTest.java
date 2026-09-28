@@ -1,6 +1,7 @@
 package com.archive.backend.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,6 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.archive.backend.entity.User;
+import com.archive.backend.exception.EmailAlreadyExistsException;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.archive.backend.dto.AuthResponse;
@@ -53,6 +56,19 @@ public class AuthServiceTest {
 
         assertThat(response.message()).isEqualTo("User registered successfully");
         verify(userRepository).save(any(User.class));
+
+    }
+
+    @Test 
+    void register_shouldThrowEmailAlreadyExistsException_whenEmailExists() {
+
+        RegisterRequest request = new RegisterRequest("testuser", "test@example.com", "password123");
+
+        when(userRepository.existsByEmail(request.email())).thenReturn(true);
+
+        assertThatThrownBy(() -> authService.register(request))
+        .isInstanceOf(EmailAlreadyExistsException.class)
+        .hasMessage("Email is already registered");
 
     }
     
