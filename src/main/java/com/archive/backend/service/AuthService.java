@@ -9,6 +9,7 @@ import com.archive.backend.dto.RegisterRequest;
 import com.archive.backend.entity.Role;
 import com.archive.backend.entity.User;
 import com.archive.backend.exception.EmailAlreadyExistsException;
+import com.archive.backend.exception.InvalidCredentialsException;
 import com.archive.backend.exception.UsernameAlreadyExistsException;
 import com.archive.backend.repository.RoleRepository;
 import com.archive.backend.repository.UserRepository;
@@ -51,7 +52,18 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
-        
+
+        User user = userRepository.findByEmail(request.email())
+            .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials"));
+
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+            throw new InvalidCredentialsException("Invalid credentials");
+        }
+
+        String token = jwtService.generateToken(user.getUsername());
+
+        return new AuthResponse("Login succesful", token);
+
     }
 
 }
