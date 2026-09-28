@@ -41,7 +41,7 @@ public class AuthService {
 
         userRepository.save(user);
 
-        return new AuthResponse("User registered succesfully");
+        return new AuthResponse("User registered successfully");
 
     }
 
