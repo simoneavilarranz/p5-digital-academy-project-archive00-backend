@@ -2,6 +2,7 @@ package com.archive.backend.exception;
 
 import java.util.Map;
 
+import org.springframework.boot.micrometer.observation.autoconfigure.ObservationProperties.Http;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -28,6 +29,15 @@ public class GlobalExceptionHandler {
             "message", ex.getMessage()
         );
         return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidCredentials(InvalidCredentialsException ex) {
+        Map<String, Object> body = Map.of(
+            "status", 401,
+            "message", ex.getMessage()
+        );
+        return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
     }
 
 }
