@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
+@Slf4j 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
@@ -32,7 +32,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
-        log.info("Auth header: {}", authHeader);
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -41,14 +40,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String token = authHeader.substring(7);
         final String username = jwtService.extractUsername(token);
-        log.info("Username from token: {}", username);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            log.info("User loaded: {}", userDetails.getUsername());
 
             if (jwtService.isTokenValid(token, userDetails.getUsername())) {
-                log.info("Token is valid, setting authentication");
                 UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(
                         userDetails,
@@ -62,8 +58,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        log.info("Auth before filter chain: {}", SecurityContextHolder.getContext().getAuthentication());
         filterChain.doFilter(request, response);
-        log.info("Response status: {}", response.getStatus());
     }
 }
