@@ -90,7 +90,7 @@ public class LastFmService {
 
             List<TrackInfo> tracks = extractTracks(albumNode);
 
-            return new AlbumDetails(name, artistName, imageUrl, url, description, releaseDate, tracks);
+            return new AlbumDetails(name, artistName, imageUrl, url, description, tracks);
         } catch (Exception e) {
             throw new RuntimeException("Error parsing Last.fm album response", e);
         }

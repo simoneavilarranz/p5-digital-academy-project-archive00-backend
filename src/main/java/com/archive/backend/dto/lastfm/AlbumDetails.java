@@ -8,6 +8,5 @@ public record AlbumDetails(
     String imageUrl,
     String lastFmUrl,
     String description,
-    String releaseDate,
     List<TrackInfo> tracks
 ) {}
