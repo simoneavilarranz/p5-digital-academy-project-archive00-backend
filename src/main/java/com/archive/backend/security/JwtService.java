@@ -35,6 +35,15 @@ public class JwtService {
         return extractAllClaims(token).getSubject();
     }
 
+    public boolean isTokenValid(String token, String username) {
+        try {
+            String tokenUsername = extractUsername(token);
+            return tokenUsername.equals(username) && !isTokenExpired(token);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
@@ -45,6 +54,10 @@ public class JwtService {
             .build()
             .parseSignedClaims(token)
             .getPayload();
+    }
+
+    private boolean isTokenExpired(String token) {
+        return extractAllClaims(token).getExpiration().before(new Date());
     }
 
 }
