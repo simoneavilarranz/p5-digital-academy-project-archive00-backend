@@ -6,6 +6,7 @@ import org.springframework.web.client.RestClient;
 import com.archive.backend.dto.lastfm.AlbumDetails;
 import com.archive.backend.dto.lastfm.AlbumSummary;
 import com.archive.backend.dto.lastfm.ArtistDetails;
+import com.archive.backend.dto.lastfm.ArtistSummary;
 import com.archive.backend.dto.lastfm.SearchResponse;
 import com.archive.backend.dto.lastfm.TrackInfo;
 
@@ -54,7 +55,8 @@ public class LastFmService {
                 albums.add(new AlbumSummary(name, artist, imageUrl, url));
             }
 
-            return new SearchResponse(albums, List.of());
+            List<ArtistSummary> artists = searchArtists(query);
+            return new SearchResponse(albums, artists);
         } catch (Exception e) {
             throw new RuntimeException("Error parsing Last.fm response", e);
         }
@@ -68,6 +70,32 @@ public class LastFmService {
             }
         }
         return "";
+    }
+
+    private List<ArtistSummary> searchArtists(String query) {
+    String response = restClient.get()
+        .uri(apiUrl + "?method=artist.search&artist={query}&api_key={key}&format=json", query, apiKey)
+        .retrieve()
+        .body(String.class);
+
+        try {
+            JsonNode root = objectMapper.readTree(response);
+            JsonNode artistsNode = root.path("results").path("artistmatches").path("artist");
+
+            List<ArtistSummary> artists = new ArrayList<>();
+
+            for (JsonNode artistNode : artistsNode) {
+                String name = artistNode.path("name").asText();
+                String url = artistNode.path("url").asText();
+                String imageUrl = extractImageUrl(artistNode);
+
+                artists.add(new ArtistSummary(name, imageUrl, url));
+            }
+
+            return artists;
+        } catch (Exception e) {
+            throw new RuntimeException("Error parsing Last.fm artist search response", e);
+        }
     }
 
     @Cacheable("albums")
@@ -87,7 +115,6 @@ public class LastFmService {
             String imageUrl = extractImageUrl(albumNode);
 
             String description = albumNode.path("wiki").path("summary").asText();
-            String releaseDate = albumNode.path("wiki").path("published").asText();
 
             List<TrackInfo> tracks = extractTracks(albumNode);
 
@@ -141,7 +168,6 @@ public class LastFmService {
                 listeners = Long.parseLong(artistNode.path("stats").path("listeners").asText());
                 playcount = Long.parseLong(artistNode.path("stats").path("playcount").asText());
             } catch (NumberFormatException e) {
-                // valores por defecto 0 si el parseo falla
             }
 
             return new ArtistDetails(name, imageUrl, url, bio, listeners, playcount);
