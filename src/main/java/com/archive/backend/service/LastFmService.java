@@ -5,6 +5,7 @@ import org.springframework.web.client.RestClient;
 
 import com.archive.backend.dto.lastfm.AlbumDetails;
 import com.archive.backend.dto.lastfm.AlbumSummary;
+import com.archive.backend.dto.lastfm.ArtistDetails;
 import com.archive.backend.dto.lastfm.SearchResponse;
 import com.archive.backend.dto.lastfm.TrackInfo;
 
@@ -116,5 +117,36 @@ public class LastFmService {
         int duration = trackNode.path("duration").asInt();
         int position = trackNode.path("@attr").path("rank").asInt();
         return new TrackInfo(name, duration, position);
+    }
+
+    @Cacheable("artists")
+    public ArtistDetails getArtistDetails(String artist) {
+        String response = restClient.get()
+        .uri(apiUrl + "?method=artist.getinfo&artist={artist}&api_key={key}&format=json",
+            artist, apiKey)
+        .retrieve()
+        .body(String.class);
+        try {
+            JsonNode root = objectMapper.readTree(response);
+            JsonNode artistNode = root.path("artist");
+
+            String name = artistNode.path("name").asText();
+            String url = artistNode.path("url").asText();
+            String imageUrl = extractImageUrl(artistNode);
+            String bio = artistNode.path("bio").path("summary").asText();
+
+            long listeners = 0;
+            long playcount = 0;
+            try {
+                listeners = Long.parseLong(artistNode.path("stats").path("listeners").asText());
+                playcount = Long.parseLong(artistNode.path("stats").path("playcount").asText());
+            } catch (NumberFormatException e) {
+                // valores por defecto 0 si el parseo falla
+            }
+
+            return new ArtistDetails(name, imageUrl, url, bio, listeners, playcount);
+        } catch (Exception e) {
+            throw new RuntimeException("Error parsing Last.fm artist response", e);
+        }
     }
 }
