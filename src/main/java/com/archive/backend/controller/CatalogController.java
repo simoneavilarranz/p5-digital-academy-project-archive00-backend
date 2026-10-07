@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.archive.backend.dto.lastfm.AlbumDetails;
+import com.archive.backend.dto.lastfm.ArtistDetails;
 import com.archive.backend.dto.lastfm.SearchResponse;
 import com.archive.backend.service.LastFmService;
 
@@ -31,6 +32,11 @@ public class CatalogController {
         @PathVariable String album
     ) {
         return lastFmService.getAlbumDetails(artist, album);
+    }
+
+    @GetMapping("/artist/{name}")
+    public ArtistDetails getArtistDetails(@PathVariable String name) {
+        return lastFmService.getArtistDetails(name);
     }
 
 }
