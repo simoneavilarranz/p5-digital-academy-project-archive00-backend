@@ -142,7 +142,7 @@ public class LastFmService {
             String url = albumNode.path("url").asText();
             String imageUrl = extractImageUrl(albumNode);
 
-            String description = albumNode.path("wiki").path("summary").asText();
+            String description = cleanHtml(albumNode.path("wiki").path("summary").asText());
 
             List<TrackInfo> tracks = extractTracks(albumNode);
 
@@ -174,6 +174,11 @@ public class LastFmService {
         return new TrackInfo(name, duration, position);
     }
 
+    private String cleanHtml(String text) {
+        if (text == null || text.isBlank()) return "";
+        return text.replaceAll("<[^>]*>", "").trim();
+    }
+
     @Cacheable("artists")
     public ArtistDetails getArtistDetails(String artist) {
         String response = restClient.get()
@@ -188,7 +193,7 @@ public class LastFmService {
             String name = artistNode.path("name").asText();
             String url = artistNode.path("url").asText();
             String imageUrl = extractImageUrl(artistNode);
-            String bio = artistNode.path("bio").path("summary").asText();
+            String bio = cleanHtml(artistNode.path("bio").path("summary").asText());
 
             List<AlbumSummary> topAlbums = getArtistTopAlbums(artist);
 
