@@ -142,7 +142,7 @@ public class LastFmService {
             String url = albumNode.path("url").asText();
             String imageUrl = extractImageUrl(albumNode);
 
-            String description = albumNode.path("wiki").path("summary").asText();
+            String description = cleanHtml(albumNode.path("wiki").path("summary").asText());
 
             List<TrackInfo> tracks = extractTracks(albumNode);
 
@@ -174,6 +174,13 @@ public class LastFmService {
         return new TrackInfo(name, duration, position);
     }
 
+    private String cleanHtml(String text) {
+        if (text == null || text.isBlank()) return "";
+        return text.replaceAll("<[^>]*>", "")
+                .replace("Read more on Last.fm", "")
+                .trim();
+    }
+
     @Cacheable("artists")
     public ArtistDetails getArtistDetails(String artist) {
         String response = restClient.get()
@@ -188,19 +195,11 @@ public class LastFmService {
             String name = artistNode.path("name").asText();
             String url = artistNode.path("url").asText();
             String imageUrl = extractImageUrl(artistNode);
-            String bio = artistNode.path("bio").path("summary").asText();
-
-            long listeners = 0;
-            long playcount = 0;
-            try {
-                listeners = Long.parseLong(artistNode.path("stats").path("listeners").asText());
-                playcount = Long.parseLong(artistNode.path("stats").path("playcount").asText());
-            } catch (NumberFormatException e) {
-            }
+            String bio = cleanHtml(artistNode.path("bio").path("summary").asText());
 
             List<AlbumSummary> topAlbums = getArtistTopAlbums(artist);
 
-            return new ArtistDetails(name, imageUrl, url, bio, listeners, playcount, topAlbums);
+            return new ArtistDetails(name, imageUrl, url, bio, topAlbums);
         } catch (Exception e) {
             throw new RuntimeException("Error parsing Last.fm artist response", e);
         }

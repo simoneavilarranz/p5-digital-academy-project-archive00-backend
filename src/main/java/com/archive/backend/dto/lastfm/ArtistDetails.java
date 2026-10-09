@@ -7,7 +7,5 @@ public record ArtistDetails(
     String imageUrl,
     String lastFmUrl,
     String bio,
-    long listeners,
-    long playcount,
     List<AlbumSummary> topAlbums
 ) {}
