@@ -98,6 +98,34 @@ public class LastFmService {
         }
     }
 
+    private List<AlbumSummary> getArtistTopAlbums(String artist) {
+        String response = restClient.get()
+        .uri(apiUrl + "?method=artist.gettopalbums&artist={artist}&api_key={key}&format=json&limit=20",
+            artist, apiKey)
+        .retrieve()
+        .body(String.class);
+
+    try {
+        JsonNode root = objectMapper.readTree(response);
+        JsonNode albumsNode = root.path("topalbums").path("album");
+
+        List<AlbumSummary> albums = new ArrayList<>();
+
+        for (JsonNode albumNode : albumsNode) {
+            String name = albumNode.path("name").asText();
+            String artistName = albumNode.path("artist").path("name").asText();
+            String url = albumNode.path("url").asText();
+            String imageUrl = extractImageUrl(albumNode);
+
+            albums.add(new AlbumSummary(name, artistName, imageUrl, url));
+        }
+
+        return albums;
+    } catch (Exception e) {
+        throw new RuntimeException("Error parsing Last.fm top albums response", e);
+    }
+    }
+
     @Cacheable("albums")
     public AlbumDetails getAlbumDetails(String artist, String album) {
         String response = restClient.get()
@@ -170,7 +198,9 @@ public class LastFmService {
             } catch (NumberFormatException e) {
             }
 
-            return new ArtistDetails(name, imageUrl, url, bio, listeners, playcount);
+            List<AlbumSummary> topAlbums = getArtistTopAlbums(artist);
+
+            return new ArtistDetails(name, imageUrl, url, bio, listeners, playcount, topAlbums);
         } catch (Exception e) {
             throw new RuntimeException("Error parsing Last.fm artist response", e);
         }

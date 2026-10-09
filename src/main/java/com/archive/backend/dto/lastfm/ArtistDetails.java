@@ -1,10 +1,13 @@
 package com.archive.backend.dto.lastfm;
 
+import java.util.List;
+
 public record ArtistDetails(
     String name,
     String imageUrl,
     String lastFmUrl,
     String bio,
-    Long listeners,
-    Long playcount
+    long listeners,
+    long playcount,
+    List<AlbumSummary> topAlbums
 ) {}
