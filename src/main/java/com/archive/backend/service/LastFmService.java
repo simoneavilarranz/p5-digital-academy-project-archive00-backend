@@ -190,17 +190,9 @@ public class LastFmService {
             String imageUrl = extractImageUrl(artistNode);
             String bio = artistNode.path("bio").path("summary").asText();
 
-            long listeners = 0;
-            long playcount = 0;
-            try {
-                listeners = Long.parseLong(artistNode.path("stats").path("listeners").asText());
-                playcount = Long.parseLong(artistNode.path("stats").path("playcount").asText());
-            } catch (NumberFormatException e) {
-            }
-
             List<AlbumSummary> topAlbums = getArtistTopAlbums(artist);
 
-            return new ArtistDetails(name, imageUrl, url, bio, listeners, playcount, topAlbums);
+            return new ArtistDetails(name, imageUrl, url, bio, topAlbums);
         } catch (Exception e) {
             throw new RuntimeException("Error parsing Last.fm artist response", e);
         }
