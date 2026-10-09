@@ -198,7 +198,9 @@ public class LastFmService {
             } catch (NumberFormatException e) {
             }
 
-            return new ArtistDetails(name, imageUrl, url, bio, listeners, playcount);
+            List<AlbumSummary> topAlbums = getArtistTopAlbums(artist);
+
+            return new ArtistDetails(name, imageUrl, url, bio, listeners, playcount, topAlbums);
         } catch (Exception e) {
             throw new RuntimeException("Error parsing Last.fm artist response", e);
         }
