@@ -176,7 +176,9 @@ public class LastFmService {
 
     private String cleanHtml(String text) {
         if (text == null || text.isBlank()) return "";
-        return text.replaceAll("<[^>]*>", "").trim();
+        return text.replaceAll("<[^>]*>", "")
+                .replace("Read more on Last.fm", "")
+                .trim();
     }
 
     @Cacheable("artists")
