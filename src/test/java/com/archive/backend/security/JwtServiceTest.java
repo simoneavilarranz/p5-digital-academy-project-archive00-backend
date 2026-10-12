@@ -34,4 +34,13 @@ public class JwtServiceTest {
 
         assertThat(username).isEqualTo("testuser");
     }
+
+    @Test
+    void isTokenValid_shouldReturnTrue_whenTokenIsValid() {
+        String token = jwtService.generateToken("testuser");
+
+        boolean isValid = jwtService.isTokenValid(token, "testuser");
+
+        assertThat(isValid).isTrue();
+    }
 }
