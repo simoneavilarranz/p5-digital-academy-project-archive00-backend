@@ -39,4 +39,33 @@ public class CollectionServiceTest {
     void setUp() {
         collectionService = new CollectionService(userRepository, collectionItemRepository);
     }
+
+    @Test
+    void addToCollection_shouldSaveItem_whenDataIsValid() {
+        String username = "testuser";
+        User user = User.builder().id(1L).username(username).build();
+        CollectionRequest request = new CollectionRequest(
+            "Radiohead/OK Computer",
+            "OK Computer",
+            "Radiohead",
+            "cover.png",
+            CollectionType.SAVED,
+            5,
+            "Amazing album"
+        );
+
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(collectionItemRepository.existsByUserIdAndLastFmIdAndType(
+            1L, "Radiohead/OK Computer", CollectionType.SAVED)).thenReturn(false);
+        when(collectionItemRepository.save(any(CollectionItem.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        CollectionResponse response = collectionService.addToCollection(request, username);
+
+        assertThat(response.albumName()).isEqualTo("OK Computer");
+        assertThat(response.artistName()).isEqualTo("Radiohead");
+        assertThat(response.rating()).isEqualTo(5);
+        assertThat(response.reviewText()).isEqualTo("Amazing album");
+        assertThat(response.type()).isEqualTo(CollectionType.SAVED);
+        verify(collectionItemRepository).save(any(CollectionItem.class));
+    }
 }
