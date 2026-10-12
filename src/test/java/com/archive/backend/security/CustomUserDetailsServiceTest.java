@@ -31,5 +31,31 @@ public class CustomUserDetailsServiceTest {
     void setUp() {
         userDetailsService = new CustomUserDetailsService(userRepository);
     }
+
     
+    @Test
+    void loadUserByUsername_shouldReturnUserDetails_whenUserExists() {
+        Role role = Role.builder().name("USER").build();
+        User user = User.builder()
+            .username("testuser")
+            .password("encoded")
+            .roles(Set.of(role))
+            .build();
+
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
+
+        UserDetails details = userDetailsService.loadUserByUsername("testuser");
+
+        assertThat(details.getUsername()).isEqualTo("testuser");
+        assertThat(details.getPassword()).isEqualTo("encoded");
+    }
+
+    @Test
+    void loadUserByUsername_shouldThrow_whenUserNotFound() {
+        when(userRepository.findByUsername("unknown")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userDetailsService.loadUserByUsername("unknown"))
+            .isInstanceOf(UsernameNotFoundException.class);
+    }
+
 }
