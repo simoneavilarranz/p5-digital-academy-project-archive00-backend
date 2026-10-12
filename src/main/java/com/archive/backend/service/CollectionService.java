@@ -42,6 +42,7 @@ public class CollectionService {
             .coverUrl(request.coverUrl())
             .type(request.type())
             .rating(request.rating())
+            .reviewText(request.reviewText())
             .build();
 
         collectionItemRepository.save(item);
