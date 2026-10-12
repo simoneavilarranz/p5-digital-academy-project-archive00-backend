@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public record CollectionRequest(
     @NotBlank String lastFmId,
@@ -13,5 +14,6 @@ public record CollectionRequest(
     @NotBlank String artistName,
     String coverUrl,
     @NotNull CollectionType type,
-    @Min(1) @Max(5) Integer rating
+    @Min(1) @Max(5) Integer rating,
+    @Size(max = 1000) String reviewText
 ) {}
