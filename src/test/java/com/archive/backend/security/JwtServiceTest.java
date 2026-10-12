@@ -25,4 +25,13 @@ public class JwtServiceTest {
 
         assertThat(token).isNotBlank();
     }
+
+    @Test
+    void extractUsername_shouldReturnCorrectUsername() {
+        String token = jwtService.generateToken("testuser");
+
+        String username = jwtService.extractUsername(token);
+
+        assertThat(username).isEqualTo("testuser");
+    }
 }
