@@ -19,4 +19,10 @@ public class JwtServiceTest {
         ReflectionTestUtils.setField(jwtService, "expiration", 3600000L); // 1 hora
     }
 
+    @Test
+    void generateToken_shouldReturnNonEmptyToken() {
+        String token = jwtService.generateToken("testuser");
+
+        assertThat(token).isNotBlank();
+    }
 }
