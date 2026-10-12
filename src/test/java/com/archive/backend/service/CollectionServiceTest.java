@@ -68,4 +68,22 @@ public class CollectionServiceTest {
         assertThat(response.type()).isEqualTo(CollectionType.SAVED);
         verify(collectionItemRepository).save(any(CollectionItem.class));
     }
+
+    @Test
+    void addToCollection_shouldThrow_whenItemAlreadyExists() {
+        String username = "testuser";
+        User user = User.builder().id(1L).username(username).build();
+        CollectionRequest request = new CollectionRequest(
+            "Radiohead/OK Computer", "OK Computer", "Radiohead",
+            "cover.png", CollectionType.SAVED, 5, "Amazing"
+        );
+
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(collectionItemRepository.existsByUserIdAndLastFmIdAndType(
+            1L, "Radiohead/OK Computer", CollectionType.SAVED)).thenReturn(true);
+
+        assertThatThrownBy(() -> collectionService.addToCollection(request, username))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Item already in collection");
+    }
 }
