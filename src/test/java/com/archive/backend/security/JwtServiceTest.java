@@ -52,4 +52,11 @@ public class JwtServiceTest {
 
         assertThat(isValid).isFalse();
     }
+
+    @Test
+    void isTokenValid_shouldReturnFalse_whenTokenIsMalformed() {
+        boolean isValid = jwtService.isTokenValid("malformed.token.here", "testuser");
+
+        assertThat(isValid).isFalse();
+    }
 }
