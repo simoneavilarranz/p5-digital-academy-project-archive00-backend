@@ -28,5 +28,23 @@ public class UserControllerIntegrationTest {
 
     @MockitoBean
     private UserRepository userRepository;
-    
+
+    @Test
+    @WithMockUser(username = "testuser")
+    void getMe_shouldReturnUserResponse() throws Exception {
+        User user = User.builder()
+            .id(1L)
+            .username("testuser")
+            .email("test@example.com")
+            .createdAt(LocalDateTime.now())
+            .build();
+
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
+
+        mockMvc.perform(get("/users/me"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.username").value("testuser"))
+            .andExpect(jsonPath("$.email").value("test@example.com"));
+    }
+
 }
