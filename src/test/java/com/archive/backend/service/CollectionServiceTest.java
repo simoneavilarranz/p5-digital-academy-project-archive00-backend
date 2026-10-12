@@ -117,4 +117,20 @@ public class CollectionServiceTest {
 
         verify(collectionItemRepository).delete(item);
     }
+
+    @Test
+    void updateReview_shouldUpdateText() {
+        String username = "testuser";
+        User user = User.builder().id(1L).username(username).build();
+        CollectionItem item = CollectionItem.builder().id(1L).reviewText("Old review").build();
+        ReviewRequest request = new ReviewRequest("New review");
+
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(collectionItemRepository.findByIdAndUserId(1L, 1L)).thenReturn(Optional.of(item));
+        when(collectionItemRepository.save(any(CollectionItem.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        CollectionResponse response = collectionService.updateReview(1L, username, request);
+
+        assertThat(response.reviewText()).isEqualTo("New review");
+    }
 }
