@@ -103,4 +103,18 @@ public class CollectionServiceTest {
         assertThat(result.get(0).albumName()).isEqualTo("Album 1");
         assertThat(result.get(1).albumName()).isEqualTo("Album 2");
     }
+
+    @Test
+    void removeFromCollection_shouldDelete_whenItemExists() {
+        String username = "testuser";
+        User user = User.builder().id(1L).username(username).build();
+        CollectionItem item = CollectionItem.builder().id(1L).build();
+
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(collectionItemRepository.findByIdAndUserId(1L, 1L)).thenReturn(Optional.of(item));
+
+        collectionService.removeFromCollection(1L, username);
+
+        verify(collectionItemRepository).delete(item);
+    }
 }
