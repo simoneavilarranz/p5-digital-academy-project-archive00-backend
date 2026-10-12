@@ -86,4 +86,21 @@ public class CollectionServiceTest {
             .isInstanceOf(RuntimeException.class)
             .hasMessage("Item already in collection");
     }
+
+    @Test
+    void getUserCollection_shouldReturnAllItems_whenTypeIsNull() {
+        String username = "testuser";
+        User user = User.builder().id(1L).username(username).build();
+        CollectionItem item1 = CollectionItem.builder().id(1L).albumName("Album 1").build();
+        CollectionItem item2 = CollectionItem.builder().id(2L).albumName("Album 2").build();
+
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(collectionItemRepository.findByUserId(1L)).thenReturn(List.of(item1, item2));
+
+        List<CollectionResponse> result = collectionService.getUserCollection(username, null);
+
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).albumName()).isEqualTo("Album 1");
+        assertThat(result.get(1).albumName()).isEqualTo("Album 2");
+    }
 }
